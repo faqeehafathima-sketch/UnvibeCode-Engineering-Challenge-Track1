@@ -1,4 +1,4 @@
-# API client accepts premature EOF before Content-Length; CLI crashes on BadZipFileAPI client accepts premature EOF before Content-Length; CLI crashes on BadZipFile
+# API client accepts premature EOF before Content-Length; CLI crashes on BadZipFile
 
 ## 1. Problem summary
 
