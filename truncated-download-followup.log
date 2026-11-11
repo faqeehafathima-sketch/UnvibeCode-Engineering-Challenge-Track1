@@ -1,0 +1,102 @@
+Python: 3.15.2
+UnvibeCode: 0.4.0
+Network: loopback mock HTTP only; no external requests
+Test: real Client/CLI upload, status, and result-download flow against a local HTTP mock
+MOCK_CONTENT_LENGTH=256
+MOCK_BODY_LENGTH=11
+MOCK_CONTENT_LENGTH_SHORTFALL=245
+
+CASE 1 mode=truncated OS_EXIT_CODE=1
+STDOUT:
+UNVIBECODE REPOSITORY REVIEW
+Repository: <TEMP>\repo
+STDERR:
+Traceback (most recent call last):
+  File "<WORKSPACE>\new-bug-investigation\truncated_download_probe.py", line 108, in <module>
+    raise SystemExit(worker(int(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4])))
+                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<WORKSPACE>\new-bug-investigation\truncated_download_probe.py", line 61, in worker
+    return cli.main(["review", "--repository", str(repo), "--output", str(output), "--no-open-browser"])
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\cli.py", line 110, in main
+    download()
+    ~~~~~~~~^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\cli.py", line 50, in download
+    extract_safe(archive, extracted, max_bytes=1024**3, max_files=50000)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\archive.py", line 59, in extract_safe
+    with zipfile.ZipFile(archive_path) as archive:
+         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Python315\Lib\zipfile\__init__.py", line 1505, in __init__
+    self._RealGetContents()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python315\Lib\zipfile\__init__.py", line 1572, in _RealGetContents
+    raise BadZipFile("File is not a zip file")
+zipfile.BadZipFile: File is not a zip file
+
+CASE 2 mode=truncated OS_EXIT_CODE=1
+STDOUT:
+UNVIBECODE REPOSITORY REVIEW
+Repository: <TEMP>\repo
+STDERR:
+Traceback (most recent call last):
+  File "<WORKSPACE>\new-bug-investigation\truncated_download_probe.py", line 108, in <module>
+    raise SystemExit(worker(int(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4])))
+                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<WORKSPACE>\new-bug-investigation\truncated_download_probe.py", line 61, in worker
+    return cli.main(["review", "--repository", str(repo), "--output", str(output), "--no-open-browser"])
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\cli.py", line 110, in main
+    download()
+    ~~~~~~~~^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\cli.py", line 50, in download
+    extract_safe(archive, extracted, max_bytes=1024**3, max_files=50000)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\archive.py", line 59, in extract_safe
+    with zipfile.ZipFile(archive_path) as archive:
+         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Python315\Lib\zipfile\__init__.py", line 1505, in __init__
+    self._RealGetContents()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python315\Lib\zipfile\__init__.py", line 1572, in _RealGetContents
+    raise BadZipFile("File is not a zip file")
+zipfile.BadZipFile: File is not a zip file
+
+CASE 3 mode=truncated OS_EXIT_CODE=1
+STDOUT:
+UNVIBECODE REPOSITORY REVIEW
+Repository: <TEMP>\repo
+STDERR:
+Traceback (most recent call last):
+  File "<WORKSPACE>\new-bug-investigation\truncated_download_probe.py", line 108, in <module>
+    raise SystemExit(worker(int(sys.argv[2]), Path(sys.argv[3]), Path(sys.argv[4])))
+                     ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<WORKSPACE>\new-bug-investigation\truncated_download_probe.py", line 61, in worker
+    return cli.main(["review", "--repository", str(repo), "--output", str(output), "--no-open-browser"])
+           ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\cli.py", line 110, in main
+    download()
+    ~~~~~~~~^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\cli.py", line 50, in download
+    extract_safe(archive, extracted, max_bytes=1024**3, max_files=50000)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<APPDATA>\Python\Python315\site-packages\unvibecode\archive.py", line 59, in extract_safe
+    with zipfile.ZipFile(archive_path) as archive:
+         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\Python315\Lib\zipfile\__init__.py", line 1505, in __init__
+    self._RealGetContents()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Python315\Lib\zipfile\__init__.py", line 1572, in _RealGetContents
+    raise BadZipFile("File is not a zip file")
+zipfile.BadZipFile: File is not a zip file
+
+CASE 4 mode=valid OS_EXIT_CODE=0
+STDOUT:
+UNVIBECODE REPOSITORY REVIEW
+Repository: <TEMP>\repo
+COMPLETE
+STDERR:
+<empty>
+
+TRUNCATED_RESPONSE_REPEATED_UNHANDLED_BADZIPFILE=True
+VALID_DOWNLOAD_CONTROL_EXIT_ZERO=True
