@@ -1,62 +1,61 @@
 # UnvibeCode Engineering Challenge 2026 — Track 1
 
-**Official Track 1 issue:** [FinanceFlash/unvibecode issue #666 — API client accepts premature EOF before Content-Length; CLI crashes on BadZipFile](https://github.com/FinanceFlash/unvibecode/issues/666)
+**Official Track 1 report:** [FinanceFlash/Unvibecode issue #666 — API client treats HTTP 200 response shorter than Content-Length as complete](https://github.com/FinanceFlash/unvibecode/issues/666)
 
-This repository is a supporting archive for the technical finding and its local reproduction. The official competition submission is issue #666; this archive is not a second issue or a pull request.
+This repository is a supporting evidence archive for the investigation and controlled reproduction. The official challenge report is issue #666; this repository is not a second issue or a pull request.
 
-## Challenge repository trial: Evidently
+## 1. Real-repository investigation: Evidently
 
-The public repository used for the Cohort 3 Track 1 repository trial was [evidentlyai/evidently](https://github.com/evidentlyai/evidently), commit `34771fe41c08ca074d96a52aaf4a45cd640cbaf5`.
+The Cohort 3 Track 1 investigation used the public [evidentlyai/evidently](https://github.com/evidentlyai/evidently) repository at commit [`34771fe41c08ca074d96a52aaf4a45cd640cbaf5`](https://github.com/evidentlyai/evidently/commit/34771fe41c08ca074d96a52aaf4a45cd640cbaf5).
 
-Local checkout recorded for the trial:
-
-```text
-C:\Users\Dell\Downloads\Evidently_Fresh
-```
-
-Review command:
+The local checkout was under the Windows Downloads folder. A reproducible PowerShell command is:
 
 ```powershell
-python -m unvibecode review --repository "C:\Users\Dell\Downloads\Evidently_Fresh"
+python -m unvibecode review --repository "$env:USERPROFILE\Downloads\Evidently_Fresh"
 ```
 
-The run completed with PARTIAL status because the repository exceeded the supported review-size limit. The Connected Code Map and repository-context outputs were produced; the full Business Workflow and Business Risk analysis did not run. This is not represented as a complete analysis.
+The exact original command line was not retained; the command above is provided as a re-run command, not as a claim about the original invocation.
 
-## Finding reported in issue #666
+The saved review page records **PARTIAL** status. The Connected Code Map and repository-context outputs were available, but the full Business Workflow & Risk Review did not run because the repository exceeded the supported review size. This archive does not represent the run as a completed business workflow or risk analysis.
 
-The UnvibeCode 0.4.0 client can return a result-download body when the HTTP response ends before its declared `Content-Length`. The CLI then passes the incomplete body to ZIP extraction, where `zipfile.BadZipFile` escapes the normal CLI error handler.
+## 2. Finding
 
-This client-side failure was verified separately using a local loopback HTTP mock. The Evidently repository trial and the loopback reproduction are separate activities; the Evidently run is not claimed to have caused the mock HTTP response or the download defect.
+The reported primary defect is in the UnvibeCode 0.4.0 API client's result-download handling: the download loop treats EOF as completion without validating the received byte count against the response's declared `Content-Length`.
 
-## Reproduction summary
+In the controlled reproduction, an incomplete HTTP 200 response proceeds to ZIP extraction. The downstream `zipfile.BadZipFile` exception is not handled by the CLI's normal error boundary and terminates the process.
 
-The loopback mock returns HTTP 200 with a declared `Content-Length` of 256 bytes but sends only 11 bytes before closing. Three truncated-response runs terminate with an uncaught `BadZipFile`; a valid ZIP control run exits successfully.
+The Evidently investigation and the controlled HTTP reproduction are separate stages. **The mock server was not used to discover the issue.** It was created afterward to reproduce the suspected client behavior in a controlled way. The mock response was generated locally; it was not sent by Evidently, and this evidence does not establish that Evidently or the hosted UnvibeCode service caused such a response in production.
 
-The mock reproduction did not contact the hosted UnvibeCode service. It demonstrates the client-side behavior for the tested response shape; it does not establish production frequency or prove that the hosted service routinely sends truncated responses.
+## 3. Controlled reproduction
 
-## Supporting files
-
-| File | Purpose |
-|---|---|
-| [API-Premature-EOF-Bug-Report.md](./API-Premature-EOF-Bug-Report.md) | Detailed report and evidence boundaries. |
-| [truncated_download_probe.py](./truncated_download_probe.py) | Loopback reproduction probe using the installed UnvibeCode CLI flow. |
-| [truncated-download-followup.log](./truncated-download-followup.log) | Sanitized Windows output showing three truncated-response failures and the valid-ZIP control. |
-
-## Test environment
+The archived probe, `truncated_download_probe.py`, drives the installed UnvibeCode client/CLI flow against a local loopback HTTP mock. It does not contact the hosted service.
 
 - UnvibeCode: 0.4.0
 - Operating system: Windows 10, build 19045
 - Python: 3.15.2
-- Network during reproduction: local loopback mock server only
-- Mock response: 256 bytes declared, 11 bytes written by the mock, 245-byte shortfall
+- Mock response: HTTP 200, `Content-Length: 256`, 11 bytes written by the mock
+- Shortfall: 245 bytes
+- Repeated truncated cases: 3; each ended in an uncaught `zipfile.BadZipFile` and exit code 1
+- Valid ZIP control: 175 bytes; exit code 0
 
-## Additional exploratory trial: Flask
+The mock-handler byte count is the number of bytes written by the test server. The archived probe does not instrument the client's `HTTPResponse.read` return count, so no direct client-read byte measurement is claimed.
 
-A separate local `--dry-run` was performed against [pallets/flask](https://github.com/pallets/flask), commit `49943b5a94413a530761350f04e896f76e8d620e`; it listed 140 files. The subsequent hosted analysis did not complete because the service returned an API quota error. Flask is not the repository identified for the Evidently Track 1 trial in issue #666.
+## 4. Supporting files
 
-## Evidence boundaries
+| File | Purpose |
+|---|---|
+| [API-Premature-EOF-Bug-Report.md](./API-Premature-EOF-Bug-Report.md) | Detailed technical report, reproduction details, source trace, limitations, and related-issue comparison. |
+| [truncated_download_probe.py](./truncated_download_probe.py) | Runnable loopback reproduction probe using the installed UnvibeCode CLI flow. |
+| [truncated-download-followup.log](./truncated-download-followup.log) | Sanitized output showing three truncated-response failures and the valid-ZIP control. |
 
-- The reproduction confirms the observed failure in the installed 0.4.0 client/CLI flow for the mocked premature-EOF response.
-- A matching historical 0.4.0 source snapshot was not found in the public repository. Source line references in the report refer to the installed package inspected during testing.
-- The evidence does not establish how often such responses occur in production, whether the hosted service emits them, or whether a job result is permanently lost.
-- The suggested fixes are defensive recommendations; maintainers should confirm the exact implementation root cause against the released source.
+## 5. Source and evidence limitations
+
+- The reproduction confirms the observed failure for the tested premature-EOF response shape in the installed UnvibeCode 0.4.0 client/CLI flow.
+- A matching historical 0.4.0 source snapshot was not located in the public repository. Source references in the report describe the installed package inspected during testing and should not be assumed to match the current public branch.
+- The evidence does not establish production frequency, prove that the hosted service routinely emits truncated responses, or show permanent loss of a job result.
+- The suggested changes are defensive recommendations. Maintainers should confirm the exact implementation root cause against the released source.
+- Issue #775 overlaps with the downstream `BadZipFile` symptom. Issue #666 narrows its claim to the upstream HTTP response-completeness check; the overlap is explicitly acknowledged rather than denied.
+
+## 6. Separate exploratory trial
+
+A separate local `--dry-run` was performed against [pallets/flask](https://github.com/pallets/flask), commit `49943b5a94413a530761350f04e896f76e8d620e`; it listed 140 files. The subsequent hosted analysis did not complete because the service returned an API quota error. This exploratory Flask run is not the Evidently Track 1 repository trial and is not the basis of the reported defect.
