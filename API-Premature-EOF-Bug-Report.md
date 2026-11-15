@@ -6,6 +6,18 @@ The UnvibeCode 0.4.0 API client can return a result-download body even when the 
 
 This report concerns client-side handling of an incomplete result download. It does not establish that the hosted service routinely sends truncated responses.
 
+## Challenge repository trial (separate from the mock reproduction)
+
+UnvibeCode was also run against the public [Evidently repository](https://github.com/evidentlyai/evidently) at commit `34771fe41c08ca074d96a52aaf4a45cd640cbaf5`.
+
+- Local checkout: `C:\Users\Dell\Downloads\Evidently_Fresh`
+- Review command: `python -m unvibecode review --repository "C:\Users\Dell\Downloads\Evidently_Fresh"`
+- Result: PARTIAL because the repository exceeded the supported review-size limit.
+- Completed outputs: Connected Code Map and repository context.
+- Not completed: full Business Workflow and Business Risk analysis.
+
+This repository trial is separate from the local loopback HTTP reproduction below. The Evidently run is not claimed to have generated the premature-EOF response or to prove that Evidently itself caused the client-side download failure.
+
 ## 2. Test environment
 
 - UnvibeCode: 0.4.0
